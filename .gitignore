@@ -1,0 +1,17 @@
+deps
+ebin
+log
+_rel
+relx
+*.v2
+.idea
+*.iml
+.eunit
+erl_crash.dump
+dialyzer_warnings
+/capi/ebin
+*beam
+logs/
+\#*
+*~
+.rebar
