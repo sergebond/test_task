@@ -12,29 +12,34 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-    start_http(),
-    test_task_sup:start_link().
+  init_database(),
+  start_http(),
+  test_task_sup:start_link().
 
 stop(_State) ->
-    ok.
+  ok.
 
 start_http() ->
 
-    ApiPort = test_task_env:get_port(),
-    Dispatch =
-        cowboy_router:compile(
-            [
-                {'_', [
-                    {<<"/api/1/json">>, test_task_http_api, []} %%
-                ]}
-            ]),
+  ApiPort = test_task_env:get_port(),
+  Dispatch =
+    cowboy_router:compile(
+      [
+        {'_', [
+          {<<"/api/1/json">>, test_task_http_api, []} %%
+        ]}
+      ]),
 
-    {ok, _} = R =
-        cowboy:start_http(
-            ?API_LISTENER,
-            100,
-            [{port, ApiPort}],
-            [{env, [{dispatch, Dispatch}]}]
-        ),
-    lager:info("test_task handlers started"),
-    R.
+  {ok, _} = R =
+    cowboy:start_http(
+      ?API_LISTENER,
+      100,
+      [{port, ApiPort}],
+      [{env, [{dispatch, Dispatch}]}]
+    ),
+  lager:info("test_task handlers started"),
+  R.
+
+init_database() ->
+  tokens:init_db(),
+  users:init_db().
