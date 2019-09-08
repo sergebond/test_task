@@ -18,14 +18,14 @@ request(_Path, Data0, _Headers) ->
     #rule{key = <<"type">>, validators = [{allowed, [<<"get">>, <<"update">>, <<"buy">>, <<"erase">>]}], converter = to_atom, on_validate_error = <<"Bad command type">>},
     #rule{key = <<"obj">>, validators = [{type, binary}, {size, {3, 15}}], on_validate_error = <<"bad obj">>}
   ],
-  Data  = evalidate:validate_and_convert(Rules, Data0),
-  Token = eutils:get_value(<<"token">>, Data),
-  Type = eutils:get_value(<<"type">>, Data),
-  Obj = eutils:get_value(<<"obj">>, Data),
+  Data1  = evalidate:validate_and_convert(Rules, Data0),
+  Token = eutils:get_value(<<"token">>, Data1),
+  Type = eutils:get_value(<<"type">>, Data1),
+  Obj = eutils:get_value(<<"obj">>, Data1),
 
   case tokens:get_user_by_token(Token) of
     {ok, Uid} ->
-      ?MODULE:Type(Obj, Uid, Data);
+      ?MODULE:Type(Obj, Uid, Data0);
     {error, _Reason} ->
       {error, 403, <<"Not authorized">>}
   end.
@@ -60,9 +60,9 @@ buy(<<"stars">>, UserId, Data0) ->
   ],
   Data  = evalidate:validate_and_convert(Rules, Data0),
   Count = eutils:get_value(<<"count">>, Data),
-  case users:update_stars_count(UserId, Count) of
-    {ok, StarsCount} ->
-      {ok, [{<<"user_id">>, UserId}, {<<"stars_count">>, StarsCount}]}
+  case users:buy_stars(UserId, Count) of
+    {ok, CoinsRemain, StarsCount} ->
+      {ok, [{<<"user_id">>, UserId}, {<<"coins_remain">>, CoinsRemain}, {<<"stars_count">>, StarsCount}]}
   end;
 buy(_, _,_) ->
   {error, <<"Bad type">>}.
@@ -71,7 +71,7 @@ buy(_, _,_) ->
 erase(<<"profile">>, UserId, _Data) ->
   case users:erase(UserId) of
     ok ->
-      {ok, [{<<"user_id">>, UserId}]};
+      {ok, []};
     {error, Reason} ->
       {error, Reason}
   end;

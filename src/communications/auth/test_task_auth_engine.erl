@@ -23,14 +23,15 @@ request([<<"register">>], Data0, _Headers) ->
 
 request([<<"auth">>], Data0, _Headers) ->
   Rules = [
-    #rule{key = <<"user_id">>, validators = [{type, binary}, {size, {256, 256}}], on_validate_error = <<"Invalid user id">>}
+    #rule{key = <<"user_id">>, validators = [{type, binary}, {size, {10, 512}}], on_validate_error = <<"Invalid user id">>}
   ],
   Data = evalidate:validate_and_convert(Rules, Data0),
   UserId = eutils:get_value(<<"user_id">>, Data),
+
   case users:get_(UserId) of
     {ok, _User} ->
       {ok, Token} = tokens:create(UserId),
-      {ok, [{<<"token">>, Token}]};
+      {ok, tokens:render(Token)};
     {error, Error} ->
       {error, Error}
   end;

@@ -22,7 +22,8 @@
 -export([
   init_db/0,
   create/1,
-  get_user_by_token/1
+  get_user_by_token/1,
+  render/1
 ]).
 
 -export([start_link/0]).
@@ -40,17 +41,24 @@ init_db() ->
 
 create(UserId) ->
   Token = gen_token(UserId),
-  ets:insert(?TABLE, #token{user_id = UserId, token = Token}),
-  {ok, Token}.
+  TokenRec = #token{user_id = UserId, token = Token},
+  ets:insert(?TABLE, TokenRec),
+  {ok, TokenRec}.
 
 get_user_by_token(Token) ->
   Now = eutils:get_unixtime(),
   case ets:lookup(?TABLE, Token) of
-    [#token{user_id = Uid, expires = Exp}] when Exp < Now ->
+    [#token{user_id = Uid, expires = Exp}] when Exp > Now ->
       {ok, Uid};
     _ ->
+
       {error, <<"invalid token">>}
   end.
+
+render(Rec) ->
+  lists:zip(record_info(fields, token), tl(tuple_to_list(Rec))).
+
+
 
 %% TOKENS CLEANER PROCESS_______________________________________________________________________________________________
 

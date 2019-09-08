@@ -22,10 +22,11 @@ handle( <<"POST">>, Req, State ) ->
       { ok, Req2 } = cowboy_req:reply( 400, [], <<"Missisng body">>, Req ),
       { ok, Req2, State };
     true ->
-      { ok, Data0, Req2 } = cowboy_req:body_qs( Req ),
+      { ok, Data0, Req2 } = cowboy_req:body( Req ),
       case eutils:from_json(Data0, error) of
         error ->
-          cowboy_req:reply( 400, [], <<"Bad body format">>, Req );
+          {ok, Req3} = cowboy_req:reply( 400, [], <<"Bad body format">>, Req ),
+          {ok, Req3, State};
         Data ->
           handle_data(Req2, State, Data)
       end

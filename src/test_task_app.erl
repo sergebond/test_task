@@ -26,7 +26,9 @@ start_http() ->
     cowboy_router:compile(
       [
         {'_', [
-          {<<"/api/1/json">>, test_task_http_api, []} %%
+          {<<"/api/1/json">>, test_task_http_api, []},
+          {<<"/[...]">>, test_task_http_auth, []}
+
         ]}
       ]),
 
@@ -37,9 +39,10 @@ start_http() ->
       [{port, ApiPort}],
       [{env, [{dispatch, Dispatch}]}]
     ),
-  lager:info("test_task handlers started"),
+  lager:info("test_task handlers started on port ~p", [ApiPort]),
   R.
 
 init_database() ->
   tokens:init_db(),
-  users:init_db().
+  users:init_db(),
+  lager:info("Db inited").
