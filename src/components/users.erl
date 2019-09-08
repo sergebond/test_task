@@ -18,7 +18,8 @@
   get_/1,
   update_stars_count/2,
   next_level/1,
-  erase/1
+  erase/1,
+  render/1
 ]).
 
 
@@ -55,6 +56,9 @@ next_level(UserId) ->
 erase(UserId) ->
   true = ets:delete(UserId),
   ok.
+
+render(Rec) ->
+  lists:zip(record_info(fields, user), tl(tuple_to_list(Rec))).
 
 %% PRIVATE______________________________________________________________________________________________________________
 

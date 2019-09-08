@@ -6,9 +6,9 @@
   {applications, [
                   kernel,
                   stdlib,
-    lager,
-    cowboy,
-    eutils
+                  lager,
+                  cowboy,
+                  eutils
                  ]},
   {mod, { test_task_app, []}},
   {env, [

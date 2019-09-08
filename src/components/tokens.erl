@@ -41,7 +41,7 @@ init_db() ->
 create(UserId) ->
   Token = gen_token(UserId),
   ets:insert(?TABLE, #token{user_id = UserId, token = Token}),
-  ok.
+  {ok, Token}.
 
 get_user_by_token(Token) ->
   Now = eutils:get_unixtime(),
