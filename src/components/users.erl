@@ -10,7 +10,7 @@
 }).
 
 -define(TABLE, ?MODULE).
--define(DEFAULT_STAR_COST, 1).
+-define(DEFAULT_STAR_COST, 10).
 
 %% API
 -export([
